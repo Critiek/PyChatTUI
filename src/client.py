@@ -5,7 +5,8 @@ PORT = 65432  # The port used by the server
 
 with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
     s.connect((HOST, PORT))
-    s.sendall(b"Hello, world")
-    data = s.recv(1024)
+    while True:
+        message = input("> ")
+        s.sendall(bytes(message, 'utf-8'))
+        print(message)
 
-print(f"Received {data!r}")
