@@ -1,6 +1,8 @@
 import socket
 import selectors
 from textual.app import App
+import host
+import connect
 
 sel = selectors.DefaultSelector()
 
@@ -14,32 +16,29 @@ HOST = get_local_ipv4()
 
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
-
-def host_p2p(HOST, PORT):
-    s.bind((HOST, PORT))
-    s.listen()
-    print(f"Listening on {(HOST, PORT)}")
-    s.setblocking(False)
-    sel.register(s, selectors.EVENT_READ, data=None)
-    conn, addr = s.accept()
-    return conn, addr
-
-
 conn, addr = None, None
+
 
 p2p_status = input("Connect or host? ['connect', 'host']\n> ").lower()
 
 if p2p_status == "host":
     PORT = int(input("What port would you like to use?\n> "))
-    conn, addr = host_p2p(HOST, PORT)
+    conn, addr = host.host(HOST, PORT)
     print(f"{addr} has connected")
+    while True:
+        s.sendall(bytes(input("> "), "utf-8"))
 
 elif p2p_status == "connect":
     ipv4_port = input("Enter remote address and port formatted as [ipv4:port]\n> ")
-    ipv4_port = ipv4_port.split(':')
-    remote_addr = ipv4_port[0]
-    remote_port = int(ipv4_port[1])
+    remote_addr, remote_port = connect.get_ip_port(ipv4_port)
     s.connect((remote_addr, remote_port))
+    while True:
+        msg = ''
+        msg = s.recv(128)
+        msg = msg.decode("utf-8")
+        print(msg)
+
+
 
 
 s.close()
