@@ -1,0 +1,26 @@
+import socket
+
+HOST = "127.0.0.1"
+PORT = 12345
+
+client_type = input("Host or connect? ['host', 'connect']\n> ")
+
+s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+
+if client_type == 'host':
+    s.bind((HOST, PORT))
+    s.listen(5)  # Listen for incoming connections
+    conn, addr = s.accept()
+    print(f"Connected by {addr}")
+    while True:
+        msg = ''
+        msg = conn.recv(1024)
+        msg = msg.decode('utf-8')
+        print(f"{addr[0]}: {msg}")
+
+elif client_type == 'connect':
+    print(s.connect((HOST, PORT)))
+    print(f"Successfully connected to {str(HOST), str(PORT)}")
+    while True:
+        msg = input("You: ")
+        s.sendall(msg.encode('utf-8'))

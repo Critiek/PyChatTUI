@@ -1,22 +1,21 @@
-import socket
+from textual.app import App, ComposeResult
+from textual.widgets import Header, Input, Log
 
-client_type = input("Host or connect? ['host', 'connect']\n> ")
+class ChatLog(Log):
+    Log.auto_scroll = True
 
-s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+class PyChat(App):
+    def compose(self) -> ComposeResult:
+        yield Header()
+        yield Log()
+        yield Input(placeholder="Start Typing Here")
 
-if client_type == 'host':
-    s.bind(('127.0.0.1', 12345))
-    s.listen(5)  # Listen for incoming connections
-    conn, addr = s.accept()
-    print(f"Connected by {addr}")
-    while True:
-        msg = ''
-        msg = conn.recv(1024)
-        msg = msg.decode('utf-8')
-        print(msg)
+    def on_ready(self) -> None:
+        log = self.query_one(Log)
+        log.write_line("Hello, World!")
+        for _ in range(10):
+            log.write_line("Hello")
 
-elif client_type == 'connect':
-    s.connect(('127.0.0.1', 12345))
-    while True:
-        msg = input("Enter message: ")
-        s.sendall(msg.encode('utf-8'))
+if __name__ == "__main__":
+    app = PyChat()
+    app.run()
